@@ -1,0 +1,44 @@
+name: 'S3 Upload'
+description: 'Upload artifact to S3 bucket and clear out unnecessary files'
+
+inputs:
+  artifact_name:
+    description: Name of the artifact to download and upload to S3
+    required: true
+    type: string
+  bucket_name:
+    description: Target S3 bucket name
+    required: true
+    type: string
+  aws_region:
+    description: AWS region where the S3 bucket lives
+    required: true
+    type: string
+secrets:
+  aws_role_arn:
+    description: ARN of the IAM role to assume for S3 access
+    required: true
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: artifact/
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.aws_role_arn }}
+          aws-region: ${{ inputs.aws_region }}
+
+      - name: Upload to S3
+        run: |
+          aws s3 sync artifact/ s3://${{ inputs.bucket_name }}/ --delete
