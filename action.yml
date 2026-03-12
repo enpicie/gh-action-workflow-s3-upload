@@ -35,5 +35,6 @@ runs:
         aws-region: ${{ inputs.aws_region }}
 
     - name: Upload to S3
+      shell: bash
       run: |
         aws s3 sync artifact/ s3://${{ inputs.bucket_name }}/ --delete
