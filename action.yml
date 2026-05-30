@@ -14,7 +14,6 @@ inputs:
     description: AWS region where the S3 bucket lives
     required: true
     type: string
-secrets:
   aws_role_arn:
     description: ARN of the IAM role to assume for S3 access
     required: true
